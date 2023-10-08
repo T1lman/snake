@@ -7,6 +7,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -50,6 +51,9 @@ public class SnakeGame extends ApplicationAdapter {
 	
 	private Random rand;
 	
+	private String FruitScore;
+	BitmapFont FruitScoreFont;
+	
 	@Override
 	public void create() {
 	
@@ -71,10 +75,14 @@ public class SnakeGame extends ApplicationAdapter {
 	      rand = new Random(); 
 	      
 	      camera = new OrthographicCamera();
-	      camera.setToOrtho(false, 800, 480);
+	      camera.setToOrtho(false, 800, 800);
 	      
+	      FruitScore = "Fruits: "+EatenFruits;
+	      FruitScoreFont = new BitmapFont();
 	      
 	      batch = new SpriteBatch();
+	      
+	     
 
 	      snakeHead = new Rectangle();
 	      snakeHead.x =  Gdx.graphics.getWidth()/2;
@@ -91,8 +99,9 @@ public class SnakeGame extends ApplicationAdapter {
 	      Fruit= new Rectangle();
 	      Fruit.x=rand.nextInt(Gdx.graphics.getWidth());
 	      Fruit.y=rand.nextInt(Gdx.graphics.getHeight());
-	      
-	      SnakeSpeed=1.5f;
+	      Fruit.width=40;
+	      Fruit.height=40;
+	      SnakeSpeed=3.0f;
 	      CurrentDirection=Direction.UP;
 	      EatenFruits=0;
 	      
@@ -157,11 +166,15 @@ public class SnakeGame extends ApplicationAdapter {
 			break;
 		}
 		batch.draw(fruitImage,Fruit.x,Fruit.y);
+		
+		FruitScoreFont.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+	    FruitScoreFont.draw(batch, FruitScore, 0,Gdx.graphics.getWidth()-5);
 		batch.end();
 		
 		if(snakeHead.overlaps(Fruit)) {
 			EatenFruits+=1; 
 			update_fruit();
+			FruitScore="Fruits: "+EatenFruits;
 			}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) CurrentDirection=Direction.LEFT;
@@ -176,9 +189,15 @@ public class SnakeGame extends ApplicationAdapter {
 		
 		
 	}
+	@Override
+	public void resize(int width, int height) {
+		camera.setToOrtho(false, width, height);
+	}
 	private void update_fruit() {
-		Fruit.x=rand.nextInt(Gdx.graphics.getWidth());
-	    Fruit.y=rand.nextInt(Gdx.graphics.getHeight());
+		Fruit.x=rand.nextInt(Gdx.graphics.getWidth()-25);
+	    Fruit.y=rand.nextInt(Gdx.graphics.getHeight()-25);
+	    System.out.println(Gdx.graphics.getWidth());
+	    System.out.println(Gdx.graphics.getHeight());
 	}
 	
 	@Override
