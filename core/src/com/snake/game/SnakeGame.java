@@ -168,15 +168,16 @@ public class SnakeGame extends ApplicationAdapter {
 		batch.draw(fruitImage,Fruit.x,Fruit.y);
 		
 		FruitScoreFont.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-	    FruitScoreFont.draw(batch, FruitScore, 0,Gdx.graphics.getWidth()-5);
+	    FruitScoreFont.draw(batch, FruitScore, 5,Gdx.graphics.getHeight()-5);
 		batch.end();
 		
 		if(snakeHead.overlaps(Fruit)) {
 			EatenFruits+=1; 
 			update_fruit();
 			FruitScore="Fruits: "+EatenFruits;
+			SnakeSpeed+=0.3f;
 			}
-		
+		if (Gdx.graphics.getHeight()==snakeHead.x||Gdx.graphics.getWidth()==snakeHead.y ) System.out.println("Out!");
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) CurrentDirection=Direction.LEFT;
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) CurrentDirection=Direction.RIGHT;
 		
@@ -196,10 +197,8 @@ public class SnakeGame extends ApplicationAdapter {
 	private void update_fruit() {
 		Fruit.x=rand.nextInt(Gdx.graphics.getWidth()-25);
 	    Fruit.y=rand.nextInt(Gdx.graphics.getHeight()-25);
-	    System.out.println(Gdx.graphics.getWidth());
-	    System.out.println(Gdx.graphics.getHeight());
+
 	}
-	
 	@Override
 	public void dispose () {
 		batch.dispose();
