@@ -5,10 +5,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.Random;
@@ -30,6 +35,7 @@ public class SnakeGame extends ApplicationAdapter {
 	private Texture snakeBodyImageHorizontal;
 	private Texture snakeBodyImageVertical;
 	
+	
 	private Texture fruitImage;
 	
 	private Sound eatingSound;
@@ -45,14 +51,26 @@ public class SnakeGame extends ApplicationAdapter {
 	private Rectangle Fruit;
 	
 	
+	private Rectangle WallUP;
+	private Rectangle WallDOWN;
+	private Rectangle WallLEFT;
+	private Rectangle WallRIGHT;
+	
+	
 	private Direction CurrentDirection;
 	private Float SnakeSpeed;
+	private int WallThickness;
 	private int EatenFruits;
 	
 	private Random rand;
+	private ShapeRenderer shapeRenderer;
 	
 	private String FruitScore;
 	BitmapFont FruitScoreFont;
+	
+	private String OutScore;
+	BitmapFont OutScoreFont;
+	private int Outs;
 	
 	@Override
 	public void create() {
@@ -64,13 +82,14 @@ public class SnakeGame extends ApplicationAdapter {
 	      
 	      snakeBodyImageHorizontal = new Texture(Gdx.files.internal("graphics\\body_horizontal.png"));
 	      snakeBodyImageVertical = new Texture(Gdx.files.internal("graphics\\body_vertical.png"));
+	      
+	     
 
 
 	      fruitImage = new Texture(Gdx.files.internal("graphics\\apple.png"));
 
-	      eatingSound = Gdx.audio.newSound(Gdx.files.internal("sound\\stop.wav"));
+	      eatingSound = Gdx.audio.newSound(Gdx.files.internal("sound\\bling4.wav"));
 	      crashSound = Gdx.audio.newSound(Gdx.files.internal("sound\\stop.wav"));
-
 	      
 	      rand = new Random(); 
 	      
@@ -80,10 +99,23 @@ public class SnakeGame extends ApplicationAdapter {
 	      FruitScore = "Fruits: "+EatenFruits;
 	      FruitScoreFont = new BitmapFont();
 	      
+	      OutScore   = "Outs:  " + Outs;
+	      OutScoreFont=new BitmapFont();
+	      
+	      
 	      batch = new SpriteBatch();
 	      
-	     
+	      shapeRenderer = new ShapeRenderer();
 
+	      
+	      WallUP=new Rectangle();
+	      WallDOWN=new Rectangle();
+	      WallRIGHT=new Rectangle();
+	      WallLEFT=new Rectangle();
+
+	      
+	      update_Walls();
+	      
 	      snakeHead = new Rectangle();
 	      snakeHead.x =  Gdx.graphics.getWidth()/2;
 	      snakeHead.y = Gdx.graphics.getHeight()/2;
@@ -104,6 +136,9 @@ public class SnakeGame extends ApplicationAdapter {
 	      SnakeSpeed=3.0f;
 	      CurrentDirection=Direction.UP;
 	      EatenFruits=0;
+	      Outs=0;
+	      
+	      WallThickness=20;
 	      
 	   }
 
@@ -112,7 +147,16 @@ public class SnakeGame extends ApplicationAdapter {
 		ScreenUtils.clear(0, 0, 0.2f, 1);
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
+		
+		
+		
+		update_Walls();
 		batch.begin();
+		
+		batch.draw(createBgTexture((int)WallUP.width,(int)WallUP.height),WallUP.x,WallUP.y);
+		batch.draw(createBgTexture((int)WallDOWN.width,(int)WallDOWN.height),WallDOWN.x,WallDOWN.y);
+		batch.draw(createBgTexture((int)WallRIGHT.width,(int)WallRIGHT.height),WallRIGHT.x,WallRIGHT.y);
+		batch.draw(createBgTexture((int)WallLEFT.width,(int)WallLEFT.height),WallLEFT.x,WallLEFT.y);
 		
 		switch (CurrentDirection) {
 		case UP:
@@ -167,16 +211,31 @@ public class SnakeGame extends ApplicationAdapter {
 		}
 		batch.draw(fruitImage,Fruit.x,Fruit.y);
 		
-		FruitScoreFont.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		FruitScoreFont.setColor(Color.GREEN);
 	    FruitScoreFont.draw(batch, FruitScore, 5,Gdx.graphics.getHeight()-5);
+	    
+	    OutScoreFont.setColor(Color.RED);
+	    OutScoreFont.draw(batch, OutScore, 5,Gdx.graphics.getHeight()-25);
 		batch.end();
 		
 		if(snakeHead.overlaps(Fruit)) {
 			EatenFruits+=1; 
+			eatingSound.play();
 			update_fruit();
 			FruitScore="Fruits: "+EatenFruits;
 			SnakeSpeed+=0.3f;
 			}
+		
+		
+		
+		if(snakeHead.overlaps(WallUP)||snakeHead.overlaps(WallDOWN)||snakeHead.overlaps(WallRIGHT)||snakeHead.overlaps(WallLEFT)) {
+			Outs+=1;
+			snakeHead.x=Gdx.graphics.getWidth()/2;
+			snakeHead.y=Gdx.graphics.getHeight()/2;
+			crashSound.play();
+			OutScore   = "Outs:  " + Outs;
+		}
+		
 		if (Gdx.graphics.getHeight()==snakeHead.x||Gdx.graphics.getWidth()==snakeHead.y ) System.out.println("Out!");
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) CurrentDirection=Direction.LEFT;
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) CurrentDirection=Direction.RIGHT;
@@ -195,9 +254,44 @@ public class SnakeGame extends ApplicationAdapter {
 		camera.setToOrtho(false, width, height);
 	}
 	private void update_fruit() {
-		Fruit.x=rand.nextInt(Gdx.graphics.getWidth()-25);
-	    Fruit.y=rand.nextInt(Gdx.graphics.getHeight()-25);
+		Fruit.x=rand.nextInt(Gdx.graphics.getWidth()-(WallThickness+50));
+	    Fruit.y=rand.nextInt(Gdx.graphics.getHeight()-(WallThickness+50));
 
+	}
+	public void update_Walls() {
+		
+		WallUP.x=0;
+	    WallUP.y=Gdx.graphics.getHeight()-WallUP.height;
+	    WallUP.width=Gdx.graphics.getWidth();
+	    WallUP.height=WallThickness;
+	    
+	    
+	    WallDOWN.x=0;
+	    WallDOWN.y=0;
+	    WallDOWN.width=Gdx.graphics.getWidth();
+	    WallDOWN.height=WallThickness;
+	    
+	    
+	    WallLEFT.x=0;
+	    WallLEFT.y=0;
+	    WallLEFT.width=WallThickness;
+	    WallLEFT.height=Gdx.graphics.getHeight();
+		
+	    
+	    
+	    WallRIGHT.x=Gdx.graphics.getWidth()-WallRIGHT.width;
+	    WallRIGHT.y=0;
+	    WallRIGHT.width=WallThickness;
+	    WallRIGHT.height=Gdx.graphics.getHeight();
+	}
+	public static Texture createBgTexture(int width,int height) {
+	    Pixmap pixmap = new Pixmap(width,height, Format.RGBA8888);
+	    pixmap.setColor(Color.GRAY);
+	    pixmap.fill();
+	    Texture texture = new Texture(pixmap); // must be manually disposed
+	    pixmap.dispose();
+
+	    return texture;
 	}
 	@Override
 	public void dispose () {
