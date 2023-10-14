@@ -58,12 +58,16 @@ public class SnakeGame extends ApplicationAdapter {
 	
 	
 	private Direction CurrentDirection;
-	private Float SnakeSpeed;
+	
 	private int WallThickness;
 	private int EatenFruits;
 	
 	private Random rand;
 	private ShapeRenderer shapeRenderer;
+	
+	private Float SnakeSpeed;
+	private String SpeedScore;
+	BitmapFont SpeedScoreFont;
 	
 	private String FruitScore;
 	BitmapFont FruitScoreFont;
@@ -101,6 +105,9 @@ public class SnakeGame extends ApplicationAdapter {
 	      
 	      OutScore   = "Outs:  " + Outs;
 	      OutScoreFont=new BitmapFont();
+	      
+	      SpeedScore   = "Speed:  " + SnakeSpeed;
+	      SpeedScoreFont=new BitmapFont();
 	      
 	      
 	      batch = new SpriteBatch();
@@ -214,8 +221,14 @@ public class SnakeGame extends ApplicationAdapter {
 		FruitScoreFont.setColor(Color.GREEN);
 	    FruitScoreFont.draw(batch, FruitScore, 5,Gdx.graphics.getHeight()-5);
 	    
+	    
 	    OutScoreFont.setColor(Color.RED);
 	    OutScoreFont.draw(batch, OutScore, 5,Gdx.graphics.getHeight()-25);
+	    
+	    
+	    SpeedScore   = "Speed:  " + SnakeSpeed;
+	    SpeedScoreFont.setColor(Color.CORAL);
+	    SpeedScoreFont.draw(batch, SpeedScore, 5,Gdx.graphics.getHeight()-50);
 		batch.end();
 		
 		if(snakeHead.overlaps(Fruit)) {
