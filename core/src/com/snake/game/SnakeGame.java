@@ -16,6 +16,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class SnakeGame extends ApplicationAdapter {
@@ -50,6 +53,7 @@ public class SnakeGame extends ApplicationAdapter {
 	private Rectangle snakeBody;
 	private Rectangle Fruit;
 	
+	private ArrayList<Rectangle> SnakeBodyList;
 	
 	private Rectangle WallUP;
 	private Rectangle WallDOWN;
@@ -87,7 +91,8 @@ public class SnakeGame extends ApplicationAdapter {
 	      snakeBodyImageHorizontal = new Texture(Gdx.files.internal("graphics\\body_horizontal.png"));
 	      snakeBodyImageVertical = new Texture(Gdx.files.internal("graphics\\body_vertical.png"));
 	      
-	     
+	      SnakeBodyList= new ArrayList<Rectangle>();
+	      
 
 
 	      fruitImage = new Texture(Gdx.files.internal("graphics\\apple.png"));
@@ -129,6 +134,8 @@ public class SnakeGame extends ApplicationAdapter {
 	      snakeHead.width = 40;
 	      snakeHead.height = 40;
 	      
+	      SnakeBodyList.add(snakeHead);
+	      
 	      snakeBody = new Rectangle();
 	      snakeBody.x =  snakeHead.x;
 	      snakeBody.y = snakeHead.y-64;
@@ -146,6 +153,8 @@ public class SnakeGame extends ApplicationAdapter {
 	      Outs=0;
 	      
 	      WallThickness=20;
+	      update_Walls();
+	      
 	      
 	   }
 
@@ -157,7 +166,6 @@ public class SnakeGame extends ApplicationAdapter {
 		
 		
 		
-		update_Walls();
 		batch.begin();
 		
 		batch.draw(createBgTexture((int)WallUP.width,(int)WallUP.height),WallUP.x,WallUP.y);
@@ -169,8 +177,9 @@ public class SnakeGame extends ApplicationAdapter {
 		case UP:
 			snakeHead.y+=1*SnakeSpeed;
 			
-			snakeBody.x =  snakeHead.x;
-		    snakeBody.y = snakeHead.y-40;
+			
+			SnakeBodyList[1] =  snakeHead.x;
+		    SnakeBodyList[1].y = snakeHead.y-40;
 
 			batch.draw(snakeHeadImageUP, snakeHead.x, snakeHead.y);
 			for (int i=0;i<EatenFruits;i++) {
@@ -265,13 +274,19 @@ public class SnakeGame extends ApplicationAdapter {
 	@Override
 	public void resize(int width, int height) {
 		camera.setToOrtho(false, width, height);
+		update_Walls();
 	}
 	private void update_fruit() {
 		Fruit.x=rand.nextInt(Gdx.graphics.getWidth()-(WallThickness+50));
 	    Fruit.y=rand.nextInt(Gdx.graphics.getHeight()-(WallThickness+50));
 
 	}
-	public void update_Walls() {
+	private void CalcNewBody(Direction direction,LinkedList<Rectangle> list,Rectangle rec) {
+		
+		
+	}
+	
+	private void update_Walls() {
 		
 		WallUP.x=0;
 	    WallUP.y=Gdx.graphics.getHeight()-WallUP.height;
